@@ -85,10 +85,22 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             } else if (cmmd.equals("Help")) {
                 Utilities.inform(factory.getHelp());
             } else { // must be from Edit menu
-                //???
+                //NEED TO ADD SOMETHING HERE
             }
         } catch (Exception e) {
             handleException(e);
+        }
+    }
+    protected class ControlPanel extends JPanel implements ActionListener {
+        JPanel panel = new JPanel();
+        public ControlPanel() {
+            add(panel);
+        }
+        public void add(JButton button) {
+            panel.add(button);
+        }
+        public void setLayout(GridLayout curGridLayout) {
+            p.setLayout(curGridLayout);
         }
     }
 

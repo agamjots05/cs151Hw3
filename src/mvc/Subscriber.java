@@ -1,4 +1,5 @@
 package mvc;
 
-public class Subscriber {
+public interface Subscriber {
+    void notifySubscribers(Publisher publisher);
 }

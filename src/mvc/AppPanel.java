@@ -50,7 +50,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         this.model = newModel;
         this.model.subscribe(this);
         // view must also unsubscribe then resubscribe:
-        view.setModel(this.model);
+        view.setView(this.model);
         model.changed();
     }
 

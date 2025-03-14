@@ -125,7 +125,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
     private void executeCommand(String cmmd) {
         for (String editCmd : factory.getEditCommands()) {
             if (cmmd.equals(editCmd)) {
-                Command cmd = factory.makeEditCommand(model, editCmd);
+                Command cmd = factory.makeEditCommand(model, editCmd, null);
                 cmd.execute();
             }
         }

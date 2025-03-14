@@ -9,6 +9,10 @@ public class View extends JFrame implements Subscriber{
         model.subscribe(this);
     }
 
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
     public void update() {
         this.repaint();
     }

@@ -1,4 +1,5 @@
 package mvc;
+import javax.swing.JFrame;
 
 public class View extends JFrame implements Subscriber{
     protected Model model;

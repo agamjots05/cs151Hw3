@@ -1,7 +1,7 @@
 package mvc;
 import java.util.ArrayList;
 
-abstract class Publisher {
+public class Publisher {
     private ArrayList<Subscriber> subscribers = new ArrayList<>();
 
     public void subscribe(Subscriber subscriber) {

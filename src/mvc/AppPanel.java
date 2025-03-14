@@ -18,6 +18,17 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
     public AppPanel(AppFactory factory) {
 
         // initialize fields here
+        this.factory = factory;
+        this.controlPanel = new ControlPanel();
+
+        this.model = factory.makeModel();
+        this.view = factory.makeView(this.model);
+
+        this.add(this.controlPanel);
+        this.add(this.view);
+
+        // Layout
+        this.setLayout((new GridLayout(1, 2)));
 
         frame = new SafeFrame();
         Container cp = frame.getContentPane();
@@ -70,7 +81,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             } else if (cmmd.equals("SaveAs")) {
                 Utilities.save(model, true);
             } else if (cmmd.equals("Open")) {
-                Model newModel = Utilities.open(model);
+                Model newModel = Utilities.open( (Model) model);
                 if (newModel != null) setModel(newModel);
             } else if (cmmd.equals("New")) {
                 Utilities.saveChanges(model);
@@ -85,33 +96,40 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             } else if (cmmd.equals("Help")) {
                 Utilities.inform(factory.getHelp());
             } else { // must be from Edit menu
-                //NEED TO ADD SOMETHING HERE
+                executeCommand(cmmd);
             }
         } catch (Exception e) {
             handleException(e);
         }
     }
     protected class ControlPanel extends JPanel implements ActionListener {
-        JPanel panel = new JPanel();
-        public ControlPanel() {
-            add(panel);
-        }
-        public void add(JButton button) {
-            panel.add(button);
-        }
-        public void setLayout(GridLayout curGridLayout) {
-            panel.setLayout(curGridLayout);
+
+        @Override
+        public Component add(Component comp) {
+            ((JButton) comp ).addActionListener(this);
+            super.add(comp);
+            return comp;
         }
     
 		@Override
 		public void actionPerformed(ActionEvent ae) {
+            System.out.println("from control panel");
             String cmmd = ae.getActionCommand();
 			try {
-                // wip
+                executeCommand(cmmd);
             } catch (Exception e) {
                 handleException(e);
             }
 		}
+    }
+
+    private void executeCommand(String cmmd) {
+        for (String editCmd : factory.getEditCommands()) {
+            if (cmmd.equals(editCmd)) {
+                Command cmd = factory.makeEditCommand(model, editCmd);
+                cmd.execute();
+            }
+        }
     }
 
     protected void handleException(Exception e) {

@@ -100,8 +100,18 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             panel.add(button);
         }
         public void setLayout(GridLayout curGridLayout) {
-            p.setLayout(curGridLayout);
+            panel.setLayout(curGridLayout);
         }
+    
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+            String cmmd = ae.getActionCommand();
+			try {
+                // wip
+            } catch (Exception e) {
+                handleException(e);
+            }
+		}
     }
 
     protected void handleException(Exception e) {

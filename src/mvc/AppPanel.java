@@ -113,7 +113,6 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
     
 		@Override
 		public void actionPerformed(ActionEvent ae) {
-            System.out.println("from control panel");
             String cmmd = ae.getActionCommand();
 			try {
                 executeCommand(cmmd);

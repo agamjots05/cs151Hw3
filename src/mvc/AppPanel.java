@@ -19,7 +19,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
 
         // initialize fields here
         this.factory = factory;
-        this.controlPanel = new ControlPanel();
+        // this.controlPanel = new ControlPanel();
 
         this.model = factory.makeModel();
         this.view = factory.makeView(this.model);
@@ -72,8 +72,10 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         return result;
     }
 
-    public void actionPerformed(ActionEvent ae) {
-        try {
+    public void actionPerformed(ActionEvent ae)
+    {
+        try
+        {
             String cmmd = ae.getActionCommand();
 
             if (cmmd.equals("Save")) {
@@ -96,40 +98,46 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             } else if (cmmd.equals("Help")) {
                 Utilities.inform(factory.getHelp());
             } else { // must be from Edit menu
-                executeCommand(cmmd);
+                Command editCommand = factory.makeEditCommand(model, cmmd, ae.getSource());
+                if (editCommand == null)
+                {
+                    throw new Exception("Your command was unrecognized: " + cmmd);
+                }
+
+                editCommand.execute();
             }
         } catch (Exception e) {
             handleException(e);
         }
     }
-    protected class ControlPanel extends JPanel implements ActionListener {
+//    protected class ControlPanel extends JPanel implements ActionListener {
+//
+//        @Override
+//        public Component add(Component comp) {
+//            ((JButton) comp ).addActionListener(this);
+//            super.add(comp);
+//            return comp;
+//        }
+//
+//		@Override
+//		public void actionPerformed(ActionEvent ae) {
+//            String cmmd = ae.getActionCommand();
+//			try {
+//                executeCommand(cmmd);
+//            } catch (Exception e) {
+//                handleException(e);
+//            }
+//		}
+//    }
 
-        @Override
-        public Component add(Component comp) {
-            ((JButton) comp ).addActionListener(this);
-            super.add(comp);
-            return comp;
-        }
-    
-		@Override
-		public void actionPerformed(ActionEvent ae) {
-            String cmmd = ae.getActionCommand();
-			try {
-                executeCommand(cmmd);
-            } catch (Exception e) {
-                handleException(e);
-            }
-		}
-    }
-
-    private void executeCommand(String cmmd) {
-        for (String editCmd : factory.getEditCommands()) {
-            if (cmmd.equals(editCmd)) {
-                Command cmd = factory.makeEditCommand(model, editCmd, null);
-                cmd.execute();
-            }
-        }
-    }
+//    private void executeCommand(String cmmd) {
+//        for (String editCmd : factory.getEditCommands()) {
+//            if (cmmd.equals(editCmd)) {
+//                Command cmd = factory.makeEditCommand(model, editCmd, null);
+//                cmd.execute();
+//            }
+//        }
+//    }
 
     protected void handleException(Exception e) {
         Utilities.error(e);

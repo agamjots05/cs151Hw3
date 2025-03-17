@@ -10,8 +10,9 @@ public class View extends JPanel implements Subscriber{
         model.subscribe(this);
     }
 
-    public void setModel(Model model) {
-        this.model = model;
+    public void setModel(Model newModel) {
+        this.model.unsubscribe(this);
+        this.model = newModel;
         model.subscribe(this);
     }
 

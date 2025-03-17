@@ -19,7 +19,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
 
         // initialize fields here
         this.factory = factory;
-        // this.controlPanel = new ControlPanel();
+        this.controlPanel = new ControlPanel();
 
         this.model = factory.makeModel();
         this.view = factory.makeView(this.model);
@@ -97,47 +97,46 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
                 Utilities.inform(factory.about());
             } else if (cmmd.equals("Help")) {
                 Utilities.inform(factory.getHelp());
-            } else { // must be from Edit menu
-                Command editCommand = factory.makeEditCommand(model, cmmd, ae.getSource());
-                if (editCommand == null)
-                {
-                    throw new Exception("Your command was unrecognized: " + cmmd);
+            } else { 
+                // must be from Edit menu
+                Object source = ae.getSource();
+                if (source instanceof JMenuItem) {
+                    handleCommand(cmmd, source);
                 }
-
-                editCommand.execute();
             }
         } catch (Exception e) {
             handleException(e);
         }
     }
-//    protected class ControlPanel extends JPanel implements ActionListener {
-//
-//        @Override
-//        public Component add(Component comp) {
-//            ((JButton) comp ).addActionListener(this);
-//            super.add(comp);
-//            return comp;
-//        }
-//
-//		@Override
-//		public void actionPerformed(ActionEvent ae) {
-//            String cmmd = ae.getActionCommand();
-//			try {
-//                executeCommand(cmmd);
-//            } catch (Exception e) {
-//                handleException(e);
-//            }
-//		}
-//    }
+   protected class ControlPanel extends JPanel implements ActionListener {
 
-//    private void executeCommand(String cmmd) {
-//        for (String editCmd : factory.getEditCommands()) {
-//            if (cmmd.equals(editCmd)) {
-//                Command cmd = factory.makeEditCommand(model, editCmd, null);
-//                cmd.execute();
-//            }
-//        }
-//    }
+       @Override
+       public Component add(Component comp) {
+           ((JButton) comp ).addActionListener(this);
+           super.add(comp);
+           return comp;
+       }
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+               String cmmd = ae.getActionCommand();
+            	try {
+                    handleCommand(cmmd, ae.getSource());
+               } catch (Exception e) {
+                   handleException(e);
+               }
+		}
+   }
+
+   private void handleCommand(String cmmd, Object source) throws Exception {
+        Command editCommand = factory.makeEditCommand(model, cmmd, source);
+        if (editCommand == null)
+        {
+            throw new Exception("Your command was unrecognized: " + cmmd);
+        }
+
+        editCommand.execute();
+   }
 
     protected void handleException(Exception e) {
         Utilities.error(e);

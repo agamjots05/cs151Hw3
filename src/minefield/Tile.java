@@ -3,8 +3,12 @@ package minefield;
 import mvc.*;
 
 /*
-    Tiles are the individual components of a minefield. They keep track of their own status (i.e. if they are planted
-    with a bomb or if they have been visited by the player). A special status is whether the tile is the goal or not.
+    Tiles are the individual components of a minefield. They keep track of:
+    (1) their own status
+        - if they are planted with a bomb
+        - if they have been visited by the player
+        - if they are the goal or not
+    (2) # of adjacent mines.
  */
 public class Tile
 {
@@ -17,7 +21,10 @@ public class Tile
     // The tile has either been visited or hasn't been visited.
     private boolean isVisited;
 
+    // The tile is either the end goal or isn't the end goal.
     private boolean isGoal;
+
+    private int adjacentMines;
 
     // Default constructor:
     public Tile ()
@@ -57,5 +64,15 @@ public class Tile
     public boolean getGoal()
     {
         return isGoal;
+    }
+
+    public void updateAdjacentMines(int count)
+    {
+        adjacentMines = count;
+    }
+
+    public int getAdjacentMines()
+    {
+        return adjacentMines;
     }
 }

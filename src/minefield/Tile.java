@@ -33,17 +33,24 @@ public class Tile
         int chance = Utilities.rng.nextInt(100);
 
         // Randomly determine whether a mine exists.
-        isMined = chance < percentMined;
+        this.isMined = chance < percentMined;
 
-        isVisited = false;
+        this.isVisited = false;
 
-        isGoal = false;
+        this.isGoal = false;
+
+        this.adjacentMines = 0;
     }
 
-    // We only need a getter for "isMine".
     public boolean getMine()
     {
         return isMined;
+    }
+
+    // We need to set the starting tile and the end tile to not be mines.
+    public void setMine()
+    {
+        isMined = false;
     }
 
     public void setVisited()

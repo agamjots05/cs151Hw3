@@ -117,6 +117,12 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
            return comp;
        }
 
+       @Override
+       public void add(Component comp, Object constraints) {
+            ((JButton) comp ).addActionListener(this);
+            super.add(comp, constraints);
+        }
+
 		@Override
 		public void actionPerformed(ActionEvent ae) {
                String cmmd = ae.getActionCommand();

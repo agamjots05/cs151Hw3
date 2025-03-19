@@ -1,137 +1,182 @@
 package minefield;
-import java.awt.Point;
 
 import java.io.Serializable;
 import mvc.*;
 
-public class Minefield extends Model
-{
+public class Minefield extends Model implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    // Add these methods to your Minefield class
+    private Tile[][] minefield;
+    public boolean isGameOver;
+    public boolean isGameWon;
+    private Heading heading;
+    private int positionX;
+    private int positionY;
 
-    private Tile[][] grid = new Tile[10][10];
-    private Point currentPosition = new Point(0, 0);
+    public static Integer WORLD_SIZE = 20;
+    private Integer minRows = 0;
+    private Integer minCols = 0;
+    private Integer maxRows = WORLD_SIZE - 1;
+    private Integer maxCols = WORLD_SIZE - 1;
 
+    // Minefield constructor:
+    public Minefield() {
+        // The class example has a 20 x 20 board.
+        this.minefield = new Tile[WORLD_SIZE][WORLD_SIZE];
+
+        for (int i = minRows; i <= maxRows; i++) {
+            for (int j = minCols; j <= maxCols; j++) {
+                minefield[i][j] = new Tile();
+            }
+        }
+
+        this.isGameOver = false;
+        this.isGameWon = false;
+
+        // Set the starting position & end goal.
+        this.positionX = minCols;
+        this.positionY = minRows;
+        this.minefield[minRows][minCols].setMine();
+        this.minefield[minRows][minCols].setVisited();
+        this.minefield[maxRows][maxCols].setMine();
+        this.minefield[maxRows][maxCols].setGoal();
+
+        // Call method to count adjacent mines and send to tile.
+        this.minefield[minRows][minCols].updateAdjacentMines(countAdjacentMines(positionX, positionY));
+    }
+
+    // Setters and getters:
+    public int getPositionX() {
+        return positionX;
+    }
+
+    public int getPositionY() {
+        return positionY;
+    }
+
+    // Add these methods for MinefieldView
     public Tile getTileAt(int row, int col) {
-        if (row >= 0 && row < grid.length && col >= 0 && col < grid[0].length) {
-            return grid[row][col];
+        if (isWithinBounds(col, row)) {
+            return minefield[row][col];
         }
         return null;
     }
 
     public void setTileAt(int row, int col, Tile tile) {
-        if (row >= 0 && row < grid.length && col >= 0 && col < grid[0].length) {
-            grid[row][col] = tile;
+        if (isWithinBounds(col, row)) {
+            minefield[row][col] = tile;
         }
     }
 
     public Point getCurrentPosition() {
-        return currentPosition;
+        return new Point(positionX, positionY);
     }
 
     public void setCurrentPosition(int row, int col) {
-        this.currentPosition = new Point(col, row);
+        if (isWithinBounds(col, row)) {
+            positionX = col;
+            positionY = row;
+        }
     }
 
     public int getAdjacentMineCount(int row, int col) {
-        int count = 0;
+        if (isWithinBounds(col, row)) {
+            return countAdjacentMines(col, row);
+        }
+        return 0;
+    }
 
-        // Check all adjacent cells
-        for (int r = row - 1; r <= row + 1; r++) {
-            for (int c = col - 1; c <= col + 1; c++) {
-                // Skip the current cell
-                if (r == row && c == col) continue;
+    // Helper function to check to see if a tile is within bounds (this should take any (x, y), not just the player's:
+    public boolean isWithinBounds(int x, int y) {
+        return ((x >= minCols) && (x <= maxCols) && (y >= minRows) && (y <= maxRows));
+    }
 
-                // Check if the adjacent cell is valid and contains a mine
-                if (r >= 0 && r < grid.length && c >= 0 && c < grid[0].length) {
-                    if (grid[r][c] != null && grid[r][c].getMine()) {
-                        count++;
+    // Helper function to count the number of adjacent mines and update it to Tile.
+    private int countAdjacentMines(int positionX, int positionY) {
+        int mineCounter = 0;
+
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                // Skip the center mine (A.K.A. where player is currently standing).
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+
+                int newPositionX = positionX + i;
+                int newPositionY = positionY + j;
+
+                if (isWithinBounds(newPositionX, newPositionY)) {
+                    if (minefield[newPositionY][newPositionX].getMine()) {
+                        mineCounter++;
                     }
                 }
             }
         }
 
-        return count;
+        return mineCounter;
     }
 
-    // Update the move method
-    public void move(Heading heading) {
-        int newRow = currentPosition.y;
-        int newCol = currentPosition.x;
+    public void move(Heading heading) throws MineExplodedException, GameisWonException {
+        int newPositionX = positionX;
+        int newPositionY = positionY;
 
-        // Calculate new position based on heading
         switch (heading) {
             case NORTH:
-                newRow--;
+                newPositionY--;
                 break;
             case SOUTH:
-                newRow++;
+                newPositionY++;
                 break;
             case EAST:
-                newCol++;
+                newPositionX++;
                 break;
             case WEST:
-                newCol--;
+                newPositionX--;
                 break;
-            case NORTH_WEST:
-                newRow--;
-                newCol--;
+            case NORTHEAST:
+                newPositionX++;
+                newPositionY--;
                 break;
-            case NORTH_EAST:
-                newRow--;
-                newCol++;
+            case SOUTHEAST:
+                newPositionX++;
+                newPositionY++;
                 break;
-            case SOUTH_WEST:
-                newRow++;
-                newCol--;
+            case NORTHWEST:
+                newPositionX--;
+                newPositionY--;
                 break;
-            case SOUTH_EAST:
-                newRow++;
-                newCol++;
+            case SOUTHWEST:
+                newPositionX--;
+                newPositionY++;
                 break;
         }
 
-        // Check if the new position is valid
-        if (newRow >= 0 && newRow < grid.length && newCol >= 0 && newCol < grid[0].length) {
-            // Check if there's a mine
-            if (grid[newRow][newCol].getMine()) {
-                // Game over - stepped on a mine
-                isGameOver = true;
-            } else {
-                // Update position
-                currentPosition = new Point(newCol, newRow);
-                grid[newRow][newCol].setVisited();
-
-                // Check if reached the goal
-                if (grid[newRow][newCol].getGoal()) {
-                    isGameOver = true; // Game is over because you won
-                }
-            }
-
-            // Notify subscribers of the change
-            changed();
-        } else {
-            // Invalid move - off the grid
-            // You might want to throw an exception here
-        }
-    }
-
-    // Initialize the grid in constructor or in a separate method
-    public void initGrid() {
-        grid = new Tile[10][10];
-        for (int row = 0; row < grid.length; row++) {
-            for (int col = 0; col < grid[0].length; col++) {
-                grid[row][col] = new Tile();
-            }
+        // Check if the new position is within bounds
+        if (!isWithinBounds(newPositionX, newPositionY)) {
+            throw new IndexOutOfBoundsException("Out of bounds!");
         }
 
-        // Set the goal at the bottom-right corner
-        grid[grid.length-1][grid[0].length-1].setGoal();
+        // Update the position
+        positionX = newPositionX;
+        positionY = newPositionY;
 
-        // Set initial position and mark as visited
-        currentPosition = new Point(0, 0);
-        grid[0][0].setVisited();
+        // Update the tile statuses
+        minefield[positionY][positionX].setVisited();
 
-        isGameOver = false;
+        // Check for mine or goal
+        if (minefield[positionY][positionX].getMine()) {
+            isGameOver = true;
+            throw new MineExplodedException("The mine beneath your feet exploded!");
+        } else if (minefield[positionY][positionX].getGoal()) {
+            isGameOver = true;
+            isGameWon = true;
+            throw new GameisWonException("You reached the goal!");
+        }
+
+        // Update adjacent mines count for the current position
+        minefield[positionY][positionX].updateAdjacentMines(countAdjacentMines(positionX, positionY));
+
+        // Notify the system that the model has changed.
+        changed();
     }
 }

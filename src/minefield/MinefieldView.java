@@ -6,16 +6,14 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MinefieldView extends View implements Serializable {
     private static final long serialVersionUID = 1L;
 
     // Constants for the grid size and appearance
-    private static final int GRID_SIZE = 10; // 10x10 grid
-    private static final int CELL_SIZE = 40;
-    private static final int PADDING = 20;
+    private static final int GRID_SIZE = 20; // Match the Minefield WORLD_SIZE
+    private static final int CELL_SIZE = 25;
+    private static final int PADDING = 10;
 
     // Grid representation
     private TileShape[][] tileShapes;
@@ -30,13 +28,6 @@ public class MinefieldView extends View implements Serializable {
         this.setBackground(Color.GRAY);
         initView();
 
-        // Add mouse listener for potential click interactions
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                handleMouseClick(e.getPoint());
-            }
-        });
     }
 
     @Override
@@ -51,71 +42,40 @@ public class MinefieldView extends View implements Serializable {
         if (model instanceof Minefield) {
             Minefield minefield = (Minefield) model;
 
-            // Reset the view if this is a new model
-            if (!gridInitialized) {
-                tileShapes = new TileShape[GRID_SIZE][GRID_SIZE];
-                currentPosition = new Point(0, 0); // Start position (top-left)
-                gridInitialized = true;
+            // Reset the view
+            tileShapes = new TileShape[GRID_SIZE][GRID_SIZE];
+            currentPosition = new Point(minefield.getPositionX(), minefield.getPositionY());
+            gridInitialized = true;
 
-                // Initialize the tile shapes
-                for (int row = 0; row < GRID_SIZE; row++) {
-                    for (int col = 0; col < GRID_SIZE; col++) {
-                        Rectangle bounds = new Rectangle(
-                                PADDING + col * CELL_SIZE,
-                                PADDING + row * CELL_SIZE,
-                                CELL_SIZE,
-                                CELL_SIZE
-                        );
+            // Initialize the tile shapes
+            for (int row = 0; row < GRID_SIZE; row++) {
+                for (int col = 0; col < GRID_SIZE; col++) {
+                    Rectangle bounds = new Rectangle(
+                            PADDING + col * CELL_SIZE,
+                            PADDING + row * CELL_SIZE,
+                            CELL_SIZE,
+                            CELL_SIZE
+                    );
 
-                        // Get the actual Tile from the model, or create a new one if it doesn't exist
-                        Tile tile = minefield.getTileAt(row, col);
-                        if (tile == null) {
-                            tile = new Tile(); // Default initialization
-                            if (row == GRID_SIZE - 1 && col == GRID_SIZE - 1) {
-                                tile.setGoal(); // Bottom-right is the goal
-                            }
-                            minefield.setTileAt(row, col, tile);
-                        }
+                    // Get the tile from the model
+                    Tile tile = minefield.getTileAt(row, col);
+                    if (tile == null) {
+                        tile = new Tile();
+                        minefield.setTileAt(row, col, tile);
+                    }
 
-                        tileShapes[row][col] = new TileShape(bounds, tile);
+                    tileShapes[row][col] = new TileShape(bounds, tile);
+
+                    // Mark the current position
+                    if (row == currentPosition.y && col == currentPosition.x) {
+                        tileShapes[row][col].setCurrent(true);
                     }
                 }
-
-                // Set the current position tile as visited
-                updateCurrentPosition(0, 0);
             }
         }
     }
 
-    // Update current position and mark as visited
-    public void updateCurrentPosition(int row, int col) {
-        // Reset the current flag on the old position
-        if (currentPosition != null && isValidPosition(currentPosition.x, currentPosition.y)) {
-            tileShapes[currentPosition.y][currentPosition.x].setCurrent(false);
-        }
-
-        // Update the current position
-        currentPosition = new Point(col, row);
-
-        // Mark the new position as current and visited
-        if (isValidPosition(col, row)) {
-            Tile tile = tileShapes[row][col].getTile();
-            tile.setVisited();
-            tileShapes[row][col].setCurrent(true);
-
-            // Update the model's current position
-            if (model instanceof Minefield) {
-                ((Minefield) model).setCurrentPosition(row, col);
-            }
-        }
-    }
-
-    // Check if a position is valid on the grid
-    private boolean isValidPosition(int col, int row) {
-        return row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE;
-    }
-
-    // Handle mouse clicks (optional)
+    // Handle mouse clicks
     private void handleMouseClick(Point point) {
         // Implementation for mouse interactions if needed
     }
@@ -134,17 +94,9 @@ public class MinefieldView extends View implements Serializable {
                 }
             }
 
-            // Draw the path (if needed)
-            drawPath(g);
-
             // Draw mine count indicators for the current position
             drawMineIndicators(g);
         }
-    }
-
-    // Draw the path taken by the player
-    private void drawPath(Graphics g) {
-        // Implementation for drawing the path if needed
     }
 
     // Draw indicators showing the number of mines adjacent to the current position
@@ -153,13 +105,19 @@ public class MinefieldView extends View implements Serializable {
             Minefield minefield = (Minefield) model;
             int mineCount = minefield.getAdjacentMineCount(currentPosition.y, currentPosition.x);
 
-            if (mineCount >= 0) {
-                int x = PADDING + currentPosition.x * CELL_SIZE;
-                int y = PADDING + currentPosition.y * CELL_SIZE;
+            // Draw the mine count on all visited tiles
+            for (int row = 0; row < GRID_SIZE; row++) {
+                for (int col = 0; col < GRID_SIZE; col++) {
+                    if (tileShapes[row][col].getTile().getVisited()) {
+                        int count = minefield.getAdjacentMineCount(row, col);
+                        int x = PADDING + col * CELL_SIZE;
+                        int y = PADDING + row * CELL_SIZE;
 
-                g.setColor(Color.BLACK);
-                g.setFont(new Font("Arial", Font.BOLD, 16));
-                g.drawString(String.valueOf(mineCount), x + CELL_SIZE/2 - 5, y + CELL_SIZE/2 + 5);
+                        g.setColor(Color.BLACK);
+                        g.setFont(new Font("Arial", Font.BOLD, 14));
+                        g.drawString(String.valueOf(count), x + CELL_SIZE/2 - 5, y + CELL_SIZE/2 + 5);
+                    }
+                }
             }
         }
     }
@@ -168,13 +126,26 @@ public class MinefieldView extends View implements Serializable {
     public void update() {
         if (model instanceof Minefield) {
             Minefield minefield = (Minefield) model;
-            Point newPos = minefield.getCurrentPosition();
+            Point newPos = new Point(minefield.getPositionX(), minefield.getPositionY());
 
-            if (newPos != null && (currentPosition == null ||
-                    newPos.x != currentPosition.x || newPos.y != currentPosition.y)) {
-                updateCurrentPosition(newPos.y, newPos.x);
+            // Reset the current flag on the old position
+            if (currentPosition != null && isValidPosition(currentPosition.x, currentPosition.y)) {
+                tileShapes[currentPosition.y][currentPosition.x].setCurrent(false);
+            }
+
+            // Update the current position
+            currentPosition = newPos;
+
+            // Mark the new position as current
+            if (isValidPosition(currentPosition.x, currentPosition.y)) {
+                tileShapes[currentPosition.y][currentPosition.x].setCurrent(true);
             }
         }
         repaint();
+    }
+
+    // Check if a position is valid on the grid
+    private boolean isValidPosition(int x, int y) {
+        return y >= 0 && y < GRID_SIZE && x >= 0 && x < GRID_SIZE;
     }
 }

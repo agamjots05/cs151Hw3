@@ -47,13 +47,13 @@ public class TileShape implements Serializable {
         this.isCurrent = current;
     }
 
-    public boolean contains(Point p) {
-        return bounds.contains(p);
-    }
-
-    public Rectangle getBounds() {
-        return bounds;
-    }
+//    public boolean contains(Point p) {
+//        return bounds.contains(p);
+//    }
+//
+//    public Rectangle getBounds() {
+//        return bounds;
+//    }
 
     public Tile getTile() {
         return tile;

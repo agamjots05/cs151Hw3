@@ -15,7 +15,7 @@ public class MinefieldPanel extends AppPanel {
         controlPanel.setLayout(new GridBagLayout());
         GridBagConstraints gridConstraints = new GridBagConstraints();
         gridConstraints.insets = new Insets(20, 30, 10, 30);
-        
+
         String[] commandsName = factory.getEditCommands();
         buttons = new JButton[commandsName.length];
         int row = 1; int col = 1;
@@ -34,7 +34,7 @@ public class MinefieldPanel extends AppPanel {
         }
     }
 
-    public static void main(String[] args) {
+     public static void main(String[] args) {
         AppFactory factory = new MinefieldFactory();
         AppPanel panel = new MinefieldPanel(factory);
         panel.display();

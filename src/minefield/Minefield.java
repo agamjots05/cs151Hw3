@@ -1,7 +1,5 @@
 package minefield;
 
-import java.awt.dnd.InvalidDnDOperationException;
-import java.io.Serializable;
 import mvc.*;
 
 /*
@@ -20,41 +18,16 @@ public class Minefield extends Model
     private int positionY;
 
     public static Integer WORLD_SIZE = 20;
-    private Integer minRows = 0;
-    private Integer minCols = 0;
-    private Integer maxRows = WORLD_SIZE - 1;
-    private Integer maxCols = WORLD_SIZE - 1;
+    private final Integer minRows = 0;
+    private final Integer minCols = 0;
+    private final Integer maxRows = WORLD_SIZE - 1;
+    private final Integer maxCols = WORLD_SIZE - 1;
 
     // Minefield constructor:
     public Minefield()
     {
-        // The class example has a 20 x 20 board.
-        this.minefield = new Tile[WORLD_SIZE][WORLD_SIZE];
-
-        for (int i = minRows; i <= maxRows; i++)
-        {
-            for (int j = minCols; j <= maxCols; j++)
-            {
-                minefield[i][j] = new Tile();
-            }
-        }
-
-        this.isGameOver = false;
-
-        this.isGameWon = false;
-
-        // Set the starting position & end goal.
-        this.positionX = minCols;
-        this.positionY = minRows;
-        this.minefield[minRows][minCols].setMine();
-        this.minefield[minRows][minCols].setVisited();
-        this.minefield[maxRows][maxCols].setMine();
-        this.minefield[maxRows][maxCols].setGoal();
-
-        // TO-DO / OPTIONAL: Use DFS to ensure that player has valid path to goal.
-
-        // Call method to count adjacent mines and send to tile.
-        this.minefield[minRows][minCols].updateAdjacentMines(countAdjacentMines(positionX, positionY));
+        // Initialize minefield:
+        initializeMinefield();
     }
 
     // Setters and getters:
@@ -102,7 +75,121 @@ public class Minefield extends Model
             }
         }
 
+        System.out.println("Adjacent mines: " + mineCounter);
         return mineCounter;
+    }
+
+    // Helper function to reset tile status "isVisited" after checking:
+    private void resetVisited()
+    {
+        for (int i = minRows; i <= maxRows; i++)
+        {
+            for (int j = minCols; j <= maxCols; j++)
+            {
+                minefield[i][j].setVisited(false);  // Reset visited status
+            }
+        }
+    }
+
+    // Helper DFS function:
+    private boolean DFS(int x, int y, int goalX, int goalY)
+    {
+        // Check if out of bounds:
+        if (!isWithinBounds(x, y))
+        {
+            return false;
+        }
+
+        // Check to see if the tile contains a mine or has already been visited:
+        if (minefield[x][y].getMine() || minefield [x][y].getVisited())
+        {
+            return false;
+        }
+
+        // Otherwise, mark the tile given as a parameter as visited:
+        minefield[x][y].setVisited(true);
+
+        // Method ends when we reach the goal:
+        if (x == goalX && y == goalY)
+        {
+            return true;
+        }
+
+        // Explore neighbors (8 directions):
+        int[] dx = {-1, 1, 0, 0, -1, -1, 1, 1}; // Directions for x (N, S, W, E, NW, SW, NE, SE)
+        int[] dy = {0, 0, -1, 1, -1, 1, -1, 1}; // Directions for y (N, S, W, E, NW, SW, NE, SE)
+
+        // Explore each direction:
+        for (int i = 0; i < 8; i++)
+        {
+            int newX = x + dx[i];
+            int newY = y + dy[i];
+
+            // Recursively explore the neighboring tiles:
+            if (DFS(newX, newY, goalX, goalY))
+            {
+                return true;
+            }
+        }
+
+        // If there is no valid path, return false:
+        return false;
+    }
+
+    private boolean hasValidPath(int startX, int startY, int goalX, int goalY)
+    {
+        return DFS(startX, startY, goalX, goalY);
+    }
+
+    // Helper function to initialize the minefield:
+    private void initializeMinefield()
+    {
+        // The class example has a 20 x 20 board.
+        this.minefield = new Tile[WORLD_SIZE][WORLD_SIZE];
+
+        for (int i = minRows; i <= maxRows; i++)
+        {
+            for (int j = minCols; j <= maxCols; j++)
+            {
+                this.minefield[i][j] = new Tile();
+            }
+        }
+
+        this.isGameOver = false;
+
+        this.isGameWon = false;
+
+        // Set the starting position & end goal.
+        this.positionX = minCols;
+        this.positionY = minRows;
+        this.minefield[minRows][minCols].setMine();
+        this.minefield[maxRows][maxCols].setMine();
+        this.minefield[maxRows][maxCols].setGoal();
+
+        // TO-DO / OPTIONAL: Use DFS to ensure that player has valid path to goal.
+        if (!hasValidPath(minCols, minRows, maxCols, maxRows))
+        {
+            regenerateMinefield();
+            System.out.println("No valid path, regenerating... ");
+        }
+        else
+        {
+            resetVisited();
+            System.out.println("Valid path found, continue playing... ");
+
+            // Set starting tile to visited.
+            this.minefield[minRows][minCols].setVisited(true);
+
+            // Call method to count adjacent mines and send to tile.
+            this.minefield[minRows][minCols].updateAdjacentMines(countAdjacentMines(positionX, positionY));
+        }
+    }
+
+    // Helper function to regenerate the minefield:
+    private void regenerateMinefield()
+    {
+        initializeMinefield();
+        System.out.println("Regenerating minefield... ");
     }
 
     public void move(Heading heading) throws MineExplodedException, GameisWonException
@@ -192,7 +279,7 @@ public class Minefield extends Model
             }
 
             // After updating player position, we need to update the tile statuses.
-            minefield[positionX][positionY].setVisited();
+            minefield[positionX][positionY].setVisited(true);
 
             if (minefield[positionX][positionY].getMine())
             {
@@ -207,7 +294,80 @@ public class Minefield extends Model
             }
 
             // We also need to notify the system that the model has changed.
-            changed();
+            // changed();
         }
     }
+
+//    public static void main(String[] args)
+//    {
+//        // Initialize the Minefield
+//        Minefield minefield = new Minefield();
+//
+//        // Print the initial position
+//        System.out.println("Initial Position: (" + minefield.getPositionX() + ", " + minefield.getPositionY() + ")");
+//        System.out.println("Game Over: " + minefield.isGameOver);
+//        System.out.println("Game Won: " + minefield.isGameWon);
+//
+//        // Try moving North and check the status
+//        try
+//        {
+//            System.out.println("Moving North...");
+//            minefield.move(Heading.NORTH);
+//            System.out.println("New Position: (" + minefield.getPositionX() + ", " + minefield.getPositionY() + ")");
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        // Try moving East and check the status
+//        try
+//        {
+//            System.out.println("Moving East...");
+//            minefield.move(Heading.EAST);
+//            System.out.println("New Position: (" + minefield.getPositionX() + ", " + minefield.getPositionY() + ")");
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        // Try moving South and check the status
+//        try
+//        {
+//            System.out.println("Moving South...");
+//            minefield.move(Heading.SOUTH);
+//            System.out.println("New Position: (" + minefield.getPositionX() + ", " + minefield.getPositionY() + ")");
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        // Try moving West and check the status
+//        try
+//        {
+//            System.out.println("Moving West...");
+//            minefield.move(Heading.WEST);
+//            System.out.println("New Position: (" + minefield.getPositionX() + ", " + minefield.getPositionY() + ")");
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        // Check if the game is won or lost
+//        if (minefield.isGameWon)
+//        {
+//            System.out.println("Congratulations! You've won the game!");
+//        }
+//        else if (minefield.isGameOver)
+//        {
+//            System.out.println("Game Over! You stepped on a mine.");
+//        }
+//        else
+//        {
+//            System.out.println("The game is still ongoing.");
+//        }
+//    }
 }

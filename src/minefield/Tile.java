@@ -53,9 +53,9 @@ public class Tile
         isMined = false;
     }
 
-    public void setVisited()
+    public void setVisited(boolean isVisited)
     {
-        isVisited = true;
+        this.isVisited = isVisited;
     }
 
     public boolean getVisited()

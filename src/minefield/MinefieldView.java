@@ -32,7 +32,7 @@ public class MinefieldView extends View implements Serializable {
 
     @Override
     public void setModel(Model model) {
-        super.model = model;
+        super.setModel(model);
         initView();
         repaint();
     }
@@ -116,6 +116,15 @@ public class MinefieldView extends View implements Serializable {
                         g.setColor(Color.BLACK);
                         g.setFont(new Font("Arial", Font.BOLD, 14));
                         g.drawString(String.valueOf(count), x + CELL_SIZE/2 - 5, y + CELL_SIZE/2 + 5);
+                    }
+                    else
+                    {
+                        int x = PADDING + col * CELL_SIZE;
+                        int y = PADDING + row * CELL_SIZE;
+
+                        g.setColor(Color.BLACK);
+                        g.setFont(new Font("Arial", Font.BOLD, 14));
+                        g.drawString("?", x + CELL_SIZE/2 - 5, y + CELL_SIZE/2 + 5);
                     }
                 }
             }

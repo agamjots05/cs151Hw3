@@ -6,9 +6,12 @@ import java.awt.*;
 import mvc.AppFactory;
 import mvc.AppPanel;
 
-public class MinefieldPanel extends AppPanel {
+public class MinefieldPanel extends AppPanel
+{
     private JButton[] buttons;
-    public MinefieldPanel(AppFactory factory) {
+
+    public MinefieldPanel(AppFactory factory)
+    {
         super(factory);
 
         // Grid Layout
@@ -29,7 +32,6 @@ public class MinefieldPanel extends AppPanel {
             col++;
             if (col > 2) { col = 1; row++; }
 
-            System.out.println("hello");
             controlPanel.add(buttons[i], gridConstraints);
         }
     }

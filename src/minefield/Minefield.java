@@ -294,7 +294,7 @@ public class Minefield extends Model
             }
 
             // We also need to notify the system that the model has changed.
-            // changed();
+            changed();
         }
     }
 

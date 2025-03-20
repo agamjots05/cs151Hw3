@@ -17,7 +17,7 @@ public class MinefieldPanel extends AppPanel
         // Grid Layout
         controlPanel.setLayout(new GridBagLayout());
         GridBagConstraints gridConstraints = new GridBagConstraints();
-        gridConstraints.insets = new Insets(20, 30, 10, 30);
+        gridConstraints.insets = new Insets(30, 30, 20, 40);
         
         String[] commandsName = factory.getEditCommands();
         buttons = new JButton[commandsName.length];
@@ -38,6 +38,11 @@ public class MinefieldPanel extends AppPanel
 
     public static void main(String[] args) {
         AppFactory factory = new MinefieldFactory();
+
+        // Application layout
+        AppPanel.FRAME_WIDTH = 1060;
+        AppPanel.FRAME_HEIGHT = 580;
+
         AppPanel panel = new MinefieldPanel(factory);
         panel.display();
     }

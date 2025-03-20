@@ -141,7 +141,14 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             throw new Exception("Your command was unrecognized: " + cmmd);
         }
 
-        editCommand.execute();
+        try
+        {
+            editCommand.execute();
+        }
+        catch (Exception e)
+        {
+            Utilities.error(e.getMessage());
+        }
    }
 
     protected void handleException(Exception e) {

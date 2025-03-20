@@ -14,14 +14,14 @@ public class MinefieldFactory implements AppFactory {
 
     // source added 3/15 to support text fields
     public Command makeEditCommand(Model model, String type, Object source) {
-        if (type == "NW") return new MoveCommand(Heading.NORTH_WEST, model);
+        if (type == "NW") return new MoveCommand(Heading.NORTHWEST, model);
         if (type == "N") return new MoveCommand(Heading.NORTH, model);
-        if (type == "NE") return new MoveCommand(Heading.NORTH_EAST, model);
+        if (type == "NE") return new MoveCommand(Heading.NORTHEAST, model);
         if (type == "W") return new MoveCommand(Heading.WEST, model);
         if (type == "E") return new MoveCommand(Heading.EAST, model);
-        if (type == "SW") return new MoveCommand(Heading.SOUTH_WEST, model);
+        if (type == "SW") return new MoveCommand(Heading.SOUTHWEST, model);
         if (type == "S") return new MoveCommand(Heading.SOUTH, model);
-        if (type == "SE") return new MoveCommand(Heading.SOUTH_EAST, model);
+        if (type == "SE") return new MoveCommand(Heading.SOUTHEAST, model);
         return null;
     }
 

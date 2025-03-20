@@ -18,8 +18,7 @@ public class MoveCommand extends Command
 
     // Execute implementation.
     @Override
-    public void execute() throws Exception
-    {
+    public void execute() throws Exception {
         if (!(model instanceof Minefield))
         {
             throw new Exception("Model must instantiate Minefield");
@@ -27,14 +26,17 @@ public class MoveCommand extends Command
 
         Minefield minefield = (Minefield) model;
 
-        // OPTIONAL: What happens when the user clicks on a directional command after they have either lost or
-        // won the game?
-
-        if (minefield.isGameOver)
+        try
         {
-            throw new Exception("The game is over, please start a new game to continue playing.");
+            minefield.move(heading);
         }
-
-        minefield.move(heading);
+        catch (GameisOverException | MineExplodedException | OutofBoundsException e)
+        {
+            Utilities.error(e.getMessage());
+        }
+        catch (GameisWonException e)
+        {
+            Utilities.inform(e.getMessage());
+        }
     }
 }

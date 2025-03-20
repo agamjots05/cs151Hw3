@@ -1,5 +1,7 @@
 package minefield;
 
+import java.io.Serializable;
+
 import mvc.*;
 
 /*
@@ -10,7 +12,7 @@ import mvc.*;
         - if they are the goal or not
     (2) # of adjacent mines.
  */
-public class Tile
+public class Tile implements Serializable
 {
     // There is a 5% chance that a patch contains a mine.
     private static int percentMined = 5;

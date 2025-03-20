@@ -1,16 +1,14 @@
 package minefield;
 
-import java.io.Serializable;
 import mvc.*;
 
-public class Minefield extends Model implements Serializable
+public class Minefield extends Model 
 {
     private static final long serialVersionUID = 1L;
 
     private Tile[][] minefield;
     public boolean isGameOver;
     public boolean isGameWon;
-    private Heading heading;
     private int positionX;
     private int positionY;
 
@@ -25,24 +23,6 @@ public class Minefield extends Model implements Serializable
 
         // Initialize minefield:
         initializeMinefield();
-
-        for (int i = minRows; i <= maxRows; i++)
-        {
-            for (int j = minCols; j <= maxCols; j++)
-            {
-                if (minefield[i][j].getMine())
-                {
-                    System.out.print("X");
-                }
-                else
-                {
-                    System.out.print("O");
-                }
-            }
-
-            System.out.println();
-        }
-
     }
 
     // Setters and getters:

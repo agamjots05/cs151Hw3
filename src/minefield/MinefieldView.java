@@ -1,13 +1,9 @@
 package minefield;
 
 import mvc.*;
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.Serializable;
 
-public class MinefieldView extends View implements Serializable {
+public class MinefieldView extends View {
     private static final long serialVersionUID = 1L;
 
     // Constants for the grid size and appearance
@@ -18,7 +14,6 @@ public class MinefieldView extends View implements Serializable {
     // Grid representation
     private TileShape[][] tileShapes;
     private Point currentPosition;
-    private boolean gridInitialized = false;
 
     // Constructor
     public MinefieldView(Minefield model) {
@@ -45,7 +40,6 @@ public class MinefieldView extends View implements Serializable {
             // Reset the view
             tileShapes = new TileShape[GRID_SIZE][GRID_SIZE];
             currentPosition = new Point(minefield.getPositionX(), minefield.getPositionY());
-            gridInitialized = true;
 
             // Initialize the tile shapes
             for (int row = 0; row < GRID_SIZE; row++) {
